@@ -1,15 +1,33 @@
 #!/usr/bin/env bash
 
 
-systemctl start NetworkManager > /dev/null 2>&1
-
-# Installation script
-SCRIPT="https://raw.githubusercontent.com/arghpy/suckless_progs/main/installation_script.sh"
 
 # Programs to install
-PROGS_GIT="https://raw.githubusercontent.com/arghpy/suckless_progs/main/packages.csv"
+PROGS_GIT="https://raw.githubusercontent.com/arghpy/arch_install/main/packages.csv"
 
 
+wifi()
+{
+    echo
+    echo "#List all wifi devices"
+    echo "[iwd]# device list"
+    echo
+    echo "Turn on the wireless device/adatper"
+    echo "[iwd]# device device set-property Powered on"
+    echo "[iwd]# adapter adapter set-property Powered on"
+    echo
+    echo "Initiate scan - no output -"
+    echo "[iwd]# station device scan"
+    echo
+    echo "List available networks"
+    echo "[iwd]# station device get-networks"
+    echo
+    echo "Connect to the network"
+    echo "[iwd]# station device connect SSID"
+    echo
+
+    iwctl
+}
 
 
 
@@ -19,15 +37,15 @@ check_internet() {
 	if [[ $(ping -c1 8.8.8.8 > /dev/null 2>&1 ; echo $?) != 0 ]]; then
 
 		whiptail --title "Internet connection"\
-			 --yes-button "nmtui"\
+			 --yes-button "wifi"\
 			 --no-button "Retry"\
-			 --yesno "Please check your internet connection.\\nIf your connection is through ethernet then make sure that the cable is connected.\\nIf you wish to connect thorugh wifi select 'nmtui'. Other wise select 'retry'." 10 60
+			 --yesno "Please check your internet connection.\\nIf your connection is through ethernet then make sure that the cable is connected.\\nIf you wish to connect thorugh wifi select 'wifi'. Other wise select 'retry'." 10 60
 
-		case "$(echo $?)" in
+		case "$($?)" in
 			0) 
 
 				sleep 3
-				nmtui 2>/dev/null
+                wifi
 				;;
 			1) 
 				sleep 2
@@ -72,7 +90,7 @@ disks(){
 
 # Creating partitions
 partitioning(){
-if [[ -n $(echo $OPTIONS | grep $OPT 2>/dev/null) ]]; then
+if [ $(echo "$OPTIONS" | grep "$OPT" 2>/dev/null) ]; then
 
         DISK=$(lsblk -d -n | grep -v "loop" | awk '{print $1}' | awk ' NR == '$OPT' {print }')
 
@@ -222,7 +240,7 @@ mounting(){
 
 install_packages(){
 	wget $PROGS_GIT
-	pacstrap -K /mnt $(tail packages.csv -n +2 | grep -v "AUR\|GIT" | awk -F ',' '{print $1}' | paste -sd' ')
+	pacstrap -K /mnt $(tail packages.csv -n +2 | awk -F ',' '{print $1}' | paste -sd' ')
 }
 
 
@@ -230,10 +248,6 @@ install_packages(){
 
 main(){
 	
-	printf "\nJust a moment...\n\n"
-
-	sleep 4
-
 	check_internet
 
 	get_keys
