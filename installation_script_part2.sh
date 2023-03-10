@@ -101,6 +101,8 @@ main(){
 
 	systemctl enable earlyoom
 
+    systemctl enable sshd
+
 	ln -s /usr/bin/vim /usr/bin/vi
 
 	printf "\n\nInstallation finished.\nType\`exit\` to get out of chroot and after that type\`shutdown now\`, take out the installation media and boot into the new system.\n\n"
