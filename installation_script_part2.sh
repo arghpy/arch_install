@@ -94,14 +94,7 @@ main(){
 
 	echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
 
-	XDG_DEFAULTS=$(grep -iE "^enabled" /etc/xdg/user-dirs.conf)
-    awk -v initial_XDG="$XDG_DEFAULTS" -v after_XDG="enabled=False" '{sub(initial_XDG, after_XDG); print}' /etc/xdg/user-dirs.conf > copy.xdg
-    rm /etc/xdg/user-dirs.conf
-    cp copy.xdg /etc/xdg/user-dirs.conf
-    rm copy.xdg
-
 	set_user
-
 
 	systemctl start NetworkManager
 	systemctl enable NetworkManager
