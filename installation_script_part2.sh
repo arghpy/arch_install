@@ -22,7 +22,6 @@ change_language(){
 set_hostname(){
 	SYS_HOSTNAME=$(whiptail --title "Set Hostname" --inputbox "Please enter a hostname for the system." 10 60 3>&1 1>&2 2>&3 3>&1)
 	echo "$SYS_HOSTNAME" > /etc/hostname
-	clear
 }
 
 
@@ -30,13 +29,8 @@ set_hostname(){
 set_user() {
 	NAME=$(whiptail --inputbox "Please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit 1
 
-	clear
-	useradd -m -g wheel -s /bin/zsh "$NAME" >/dev/null 2>&1
+	useradd -m -g wheel "$NAME" >/dev/null 2>&1
 	usermod -a -G wheel "$NAME"
-	export REPODIR="/home/$NAME/.local/src"
-	mkdir -p "$REPODIR"
-	chown -R "$NAME":wheel "$(dirname "$REPODIR")"
-	clear
 	printf "\n\nEnter password for %s\n\n" "$NAME"
 	passwd $(echo "$NAME")
 
@@ -70,8 +64,7 @@ grub(){
 main(){
 	pacman-key --init
 	wait
-	pacman -Sy
-	pacman-key --populate archlinux
+	pacman --noconfirm -Sy
 
 	ln -sf /usr/share/zoneinfo/Europe/Bucharest /etc/localtime
 
